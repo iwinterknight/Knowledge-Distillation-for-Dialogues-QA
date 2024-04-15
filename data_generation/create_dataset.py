@@ -1,40 +1,17 @@
-import pickle
+import configparser
 import json
-import os
-import re
-import time
-import pandas as pd
-from os import listdir
-from os.path import isfile, join
+import pickle
 
+import openai
 import torch
+
 from definitions import *
 
-import configparser
 config = configparser.ConfigParser()
 config.read(os.path.join(get_config_path()))
 
-import torch.nn as nn
-import torch.nn.functional as F
-from collections import OrderedDict
-
-from transformers import pipeline, AutoModelForSequenceClassification
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, GenerationConfig, TrainingArguments, Trainer
-from transformers import (
-    AdamW,
-    T5ForConditionalGeneration,
-    T5TokenizerFast as T5Tokenizer
-)
-import time
-from torch.utils.data import Dataset, DataLoader
-from peft import PeftModel, PeftConfig, LoraConfig, TaskType
-
 import pytorch_lightning as pl
 print(f"pytorch lightning version : {pl.__version__}")
-
-from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.loggers import TensorBoardLogger
-
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -125,8 +102,38 @@ def construct_prompt(recipe, question, answer):
     return prompt
 
 
+def initiate_gpt_client():
+    return openai.OpenAI(api_ley=config['openai']['key'])
 
 
+def generate_question_answer(recipe, question, answer, client):
+    prompt = construct_prompt(recipe, question, answer)
+    completion = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+      {"role": "user", "content": prompt}
+    ]
+    )
+    response = completion.choices[0].message.content
+    return response
+
+
+def create_qa_dataset(recipe_dialogue_data):
+    res = {}
+    for i, (title, v) in enumerate(recipe_dialogue_data.items()):
+        print(f"{i + 1} recipes data generated...")
+        instructions = v["instructions"]
+        recipe = title + "\n" + instructions
+        qna = v["qna"]
+        res_qna = []
+        for qa in qna:
+            question, answer = qa["question"], qa["answer"]
+            response = generate_question_answer(recipe, question, answer)
+            res_qna.append(response)
+        res[title] = {"instructions": instructions, "qna": qna, "improved_qna": res_qna}
+        with open(os.path.join(config['data']['data_path'], "generated_qa_dataset.pickle"), "wb") as f:
+            pickle.dump(res, f)
+    print(res)
 
 
 
