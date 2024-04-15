@@ -1,0 +1,17 @@
+pip install -q --upgrade pip
+pip install -q pickle5
+pip install -q openai
+pip install --q datasets
+pip install -q transformers
+pip install -q evaluate
+pip install -q rouge_score
+pip install -q peft
+pip install -q tensorflow
+pip install -q --disable-pip-version-check torch==1.13.1
+pip install -q --disable-pip-version-check torchdata==0.5.1
+pip install -q pytorch-lightning
+pip install -q transformers==4.27.2
+pip install -q datasets==2.11.0
+pip install -q evaluate==0.4.0
+pip install -q rouge_score==0.1.2
+pip install -q peft==0.3.0 --quiet
