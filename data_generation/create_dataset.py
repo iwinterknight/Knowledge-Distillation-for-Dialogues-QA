@@ -1,3 +1,4 @@
+import os
 import configparser
 import json
 import pickle
@@ -7,6 +8,22 @@ import torch
 
 import re
 import unicodedata
+import datetime
+
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+from langchain.output_parsers import ResponseSchema
+from langchain.output_parsers import StructuredOutputParser
+
+
+current_date = datetime.datetime.now().date()
+target_date = datetime.date(2024, 6, 12)
+if current_date > target_date:
+    llm_model = "gpt-3.5-turbo"
+else:
+    llm_model = "gpt-3.5-turbo-0301"
+
+openai.api_key = os.environ['OPENAI_API_KEY']
 
 from definitions import *
 
@@ -59,87 +76,108 @@ def collate_dataset(recipes, dialogues):
     return recipe_dialogue_data
 
 
-def construct_prompt(recipe, question, answer):
-    prompt = """
-    You are given a recipe delimited by triple backticks.
-    Following that is a question about the recipe and an answer is provided after the question.
-    If the question is very simple, you need to reframe the question and improve it by converting it to a question that requires more cooking related reasoning and details.
-    After that generate a detailed answer to the improved question in less than 300 words. Format the output in valid json format.
+def create_prompt_schemas():
+    prompt_preface = """
+        Example :
+          Sample Input:
+            ```Recipe :labneh fresh herbs and olive oil',
+            Instructions : Line a strainer with a double layer of cheesecloth and suspend over a bowl.
+            Spoon in yogurt. Refrigerate and let drain for at least 2 hours. Discard liquid.
+            The longer the yogurt drains, the thicker the cheese will be. For a thicker spread, drain covered yogurt overnight in the refrigerator.
+            Transfer to a bowl. Add oil, tarragon, basil, chives, thyme, zest, salt and pepper, and whisk until blended.
+            Let sit for 15 minutes to allow the flavors to meld.
+            Taste and adjust seasoning with salt and pepper.
+            Labneh will keep in an airtight container in the refrigerator for up to 5 days.```
 
-    Example :
-      Sample Input:
-        ```Recipe :labneh fresh herbs and olive oil',
-        Instructions : Line a strainer with a double layer of cheesecloth and suspend over a bowl.
-        Spoon in yogurt. Refrigerate and let drain for at least 2 hours. Discard liquid.
-        The longer the yogurt drains, the thicker the cheese will be. For a thicker spread, drain covered yogurt overnight in the refrigerator.
-        Transfer to a bowl. Add oil, tarragon, basil, chives, thyme, zest, salt and pepper, and whisk until blended.
-        Let sit for 15 minutes to allow the flavors to meld.
-        Taste and adjust seasoning with salt and pepper.
-        Labneh will keep in an airtight container in the refrigerator for up to 5 days.```
-
-        Question : Can I let the ingredients sit for longer to make the flavors stronger?
-        Answer : Only 15 minutes is needed for the flavors to meld.
-
-      Sample Output:
-        {
-          "Question": "How does the duration of resting the labneh with herbs and olive oil influence the development of flavors, and what are the potential effects of letting it sit for longer than the recommended 15 minutes?",
-          "Answer": "The resting period after blending the labneh with herbs and olive oil is critical for allowing the flavors to meld. The process involves the diffusion of essential oils from the herbs into the labneh, enhancing its flavor. Allowing the mixture to sit for the recommended 15 minutes usually suffices for the flavors to combine harmoniously. Extending this period can lead to a more pronounced flavor profile, as the herbs continue to release their oils, deepening the overall taste. However, letting it sit for too long could potentially overpower the delicate balance of the labneh, with dominant flavors from herbs like tarragon or thyme possibly becoming too intense. Moreover, the texture of the labneh might be affected if the acidic components of the herbs begin to further break down the dairy proteins, potentially altering its creamy consistency.",
-          "Critique": "The answer provides a detailed explanation of the effects of resting time on flavor development in labneh. However, it lacks specific guidelines on how much longer one can let it sit before the flavors become overpowering or the texture changes.",
-          "Followup": {
-          {
-            "Question": What are the signs that the labneh has been overflavored by the herbs?",
-            "Answer": "Signs that the labneh has been overflavored include a sharp or bitter taste, particularly from herbs like thyme and tarragon. The freshness and creaminess of the labneh may be overshadowed by an overwhelming herbal presence."
-          },
-          {
-            "Question": "How might the texture of labneh change with extended resting times, and why?",
-            "Answer": "With extended resting times, the texture of the labneh could become slightly grainy or watery. This occurs because the longer exposure to herbs, which contain acids and other compounds, can further break down the protein structure of the yogurt, affecting its smoothness and consistency."
-          }
-        }
+            Question : Can I let the ingredients sit for longer to make the flavors stronger?
+            Answer : Only 15 minutes is needed for the flavors to meld.
     """
-    prompt = prompt + f"Recipe : {recipe}\nQuestion : {question}\nAnswer : {answer}"
-    return prompt
+
+    output_template = """
+      You are given a recipe delimited by triple backticks.
+      Following that is a question about the recipe and an answer is provided after the question.
+      Return the following information :
+
+      improved_question: If the question is very simple, you need to reframe the question and improve it by converting it to a question that requires more cooking related reasoning and details.
+      improved_answer: Generate a detailed answer to the improved question in less than 100 words.
+      follow_up: Array of 5 to 10 follow up questions and corresponding answers related to the the context and previous question and answer.
+
+      text: {text}
+
+      {format_instructions}
+    """
+
+    improved_question_schema = ResponseSchema(name="improved_question",
+                                              description="If the question is very simple, you need to reframe the question and improve it by converting it to a question that requires more cooking related reasoning and details.")
+    improved_answer_schema = ResponseSchema(name="improved_answer",
+                                            description="Generate a detailed answer to the improved question in less than 150 words.")
+    follow_up_schema = ResponseSchema(name="follow_up",
+                                      description="follow_up: Array of 5 to 10 follow up questions and corresponding answers related to the the context and previous question and answer. format : [{'question': string, 'answer': string}]",
+                                      type="array(objects)")
+
+    response_schemas = [improved_question_schema,
+                        improved_answer_schema,
+                        follow_up_schema]
+
+    return response_schemas, prompt_preface, output_template
 
 
 def initiate_gpt_client():
-    return openai.OpenAI(api_ley=config['openai']['key'])
+    return openai.OpenAI(api_key=config['openai']['key'])
 
 
-def generate_question_answer(recipe, question, answer, client):
-    prompt = construct_prompt(recipe, question, answer)
+def get_completion(prompt, model=llm_model):
+    client = openai.OpenAI(api_key=openai.api_key)
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "user", "content": prompt}
-        ]
+        ],
+        temperature=0
     )
     response = completion.choices[0].message.content
     return response
 
 
-def create_qa_dataset(recipe_dialogue_data, client):
-    res = {}
-    for i, (title, v) in enumerate(recipe_dialogue_data.items()):
-        print(f"{i + 1} recipes data generated...")
-        instructions = v["instructions"]
-        recipe = title + "\n" + instructions
-        qna = v["qna"]
-        res_qna = []
-        for qa in qna:
-            question, answer = qa["question"], qa["answer"]
-            response = generate_question_answer(recipe, question, answer, client)
-            res_qna.append(response)
-        res[title] = {"instructions": instructions, "qna": qna, "improved_qna": res_qna}
-        with open(os.path.join(config['data']['data_path'], "generated_qa_dataset.pickle"), "wb") as f:
-            pickle.dump(res, f)
-    return res
+def create_prompt(prompt_preface, recipe, question, answer):
+  prompt = prompt_preface + f"\nRecipe : {recipe}\nQuestion : {question}\nAnswer : {answer}"
+  return prompt
+
+
+def create_qa_dataset(data):
+  res = {}
+  chat = ChatOpenAI(temperature=0.0, model=llm_model)
+  response_schemas, prompt_preface, output_template = create_prompt_schemas()
+  output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
+  format_instructions = output_parser.get_format_instructions()
+
+  for i, (title, v) in enumerate(data.items()):
+    if i > 0 and i % 10 == 0:
+      print(f"{i+1} recipes data generated...")
+    instructions = v["instructions"]
+    recipe = title + "\n" + instructions
+    qna = v["qna"]
+    res_qna = []
+    for qa in qna:
+      question, answer = qa["question"], qa["answer"]
+      prompt_template = create_prompt(recipe, question, answer)
+      prompt = ChatPromptTemplate.from_template(template=output_template)
+      messages = prompt.format_messages(text=prompt_template,
+                                format_instructions=format_instructions)
+      response = chat(messages)
+      output_dict = output_parser.parse(response.content)
+      res_qna.append(output_dict)
+    res[title] = {"instructions": instructions, "prompt_output": output_dict}
+    with open(os.path.join(config['data']['data_path'], "generated_qa_dataset.pickle"), "wb") as f:
+        pickle.dump(res, f)
+  return res
 
 
 def generate():
-    client = initiate_gpt_client()
     recipes = load_recipes_dataset()
     dialogues = load_dialogue_dataset()
     recipe_dialogue_data = collate_dataset(recipes, dialogues)
-    generated_dataset = create_qa_dataset(recipe_dialogue_data, client)
+    generated_dataset = create_qa_dataset(recipe_dialogue_data)
     return generated_dataset
 
 
