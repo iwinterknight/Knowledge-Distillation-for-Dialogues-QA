@@ -11,7 +11,7 @@ This repo contains :
 Instruction fine-tuned LLMs are capable of in-context learning and generalize well to tasks they have not encountered during the fine-tuning stage. However this capacity to generalize is seen when the order of parameters is large.  
 
 <p align="center">
- ![icl](https://github.com/iwinterknight/Knowledge-Distillation-for-Dialogues-QA/assets/37212007/a501eb92-a098-4516-8b21-6545e4ae2bf3)
+ <img width="789" alt="RLHF Model Architecture" src=https://github.com/iwinterknight/Knowledge-Distillation-for-Dialogues-QA/assets/37212007/a501eb92-a098-4516-8b21-6545e4ae2bf3>
 </p>
 
 
