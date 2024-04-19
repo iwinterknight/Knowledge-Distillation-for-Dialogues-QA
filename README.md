@@ -13,7 +13,7 @@ This repo contains code to build a specialist LLM for Cooking tasks, fine-tuned 
 
 
 
-[^1] @Inproceedings{Choi2022,
+[^1]: @Inproceedings{Choi2022,
  author = {Jason Choi and Saar Kuzi and Nikhita Vedula and Jie Zhao and Giuseppe Castellucci and Marcus Collins and Shervin Malmasi and Oleg Rokhlenko and Eugene Agichtein},
  title = {Wizard of tasks: A novel conversational dataset for solving real-world tasks in conversational settings},
  year = {2022},
