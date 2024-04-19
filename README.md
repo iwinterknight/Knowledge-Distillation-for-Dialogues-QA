@@ -30,7 +30,7 @@ LangChain is leveraged to prompt gpt3.5-turbo API to augment the Amazon Wizard o
 
 Here are a few examples of the type of questions generated through prompting :
 ```
-1. **Physical Commonsense Reasoning Questions** :
+1. Physical Commonsense Reasoning Questions :
 Kitchen Tool Physical Commonsense Question: "I do not have a scraper or a chopper. How do I scrape the bowl?"
 Answer: "You could use any other sharp object like a kitchen knife or even a fork"
 
@@ -44,7 +44,7 @@ Kitchen Tool Physical Commonsense Question: "Do I have to put on oven mitts whil
 Answer: "If it is not too hot, you could also use a paper towel or wait for it too cool down"
 
 
-2. **Temporal Commonsense Reasoning Questions** :
+2. Temporal Commonsense Reasoning Questions :
 Description : A temporal reasoning question is one which involves an inherent understanding of time in order to come up with an answer. To this effect we have identified 3 key dimensions of temporal reasoning and illustrate each with an example
 
 Duration Temporal Commonsense Question: "Can I quickly go grab bread from the nearby store while the Turkey is still in the oven?"
