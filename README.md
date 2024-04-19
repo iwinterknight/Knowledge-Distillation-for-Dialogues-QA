@@ -12,6 +12,7 @@ Instruction fine-tuned LLMs are capable of in-context learning and generalize we
 
 <p align="center">
  <img width="789" alt="RLHF Model Architecture" src=https://github.com/iwinterknight/Knowledge-Distillation-for-Dialogues-QA/assets/37212007/a501eb92-a098-4516-8b21-6545e4ae2bf3>
+ <em>Image Source : [here](https://arxiv.org/abs/2206.07682)</em>
 </p>
 
 
