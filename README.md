@@ -26,7 +26,35 @@ Knowledge distillation is an important means to train smaller models(student mod
 
 
 **Dataset Generation**
-LangChain
+LangChain is leveraged to prompt gpt3.5-turbo API to augment the Amazon Wizard of Tasks[^1] Cooking dataset with more detailed question answers about the task. These questions typically capture 2 aspects of task related commonsense reasoning, physical (eg. kitchen tool, ingredient substitutes etc.) and temporal (eg. duration, ordering of steps, frequency of steps).
+
+Here are a few examples of the type of questions generated through prompting :
+'''
+Kitchen Tool Physical Commonsense Question: "I do not have a scraper or a chopper. How do I scrape the bowl?"
+Answer: "You could use any other sharp object like a kitchen knife or even a fork"
+
+Kitchen Tool Physical Commonsense Question: "I have a small vessel, can I boil the water in that?"
+Answer: "You will need a somewhat large vessel to prevent the water from spilling over while boiling"
+
+Ingredient Physical Commonsense Question: "I don't have an extra box and the packet of oats did not come in a ziplock bag. How should I store the left-over oats?"
+Answer: "You could try tying the cut portion of the packet or sealing the opening with a rubber band"
+
+Kitchen Tool Physical Commonsense Question: "Do I have to put on oven mitts while taking out the turkey from the microwave after defrosting"
+Answer: "If it is not too hot, you could also use a paper towel or wait for it too cool down"
+
+
+2. Temporal Commonsense Reasoning Questions :
+Description : A temporal reasoning question is one which involves an inherent understanding of time in order to come up with an answer. To this effect we have identified 3 key dimensions of temporal reasoning and illustrate each with an example
+
+Duration Temporal Commonsense Question: "Can I quickly go grab bread from the nearby store while the Turkey is still in the oven?"
+Answer: Yes, you can quickly grab bread while the turkey is in the oven, provided it's safe and the oven is reliable. Ensure the turkey has enough cooking time left, set a timer, and if possible, let someone know to keep an eye on it while you step out.
+
+Ordering Temporal Commonsense Question: "Can I put the eggs to boil first, so they’re done by the time I peel vegetables?"
+Answer: Sure, you can boil eggs first and peel vegetables while they cook. Start the eggs in cold water, boil for 9-12 minutes, then cool them in ice water.
+
+Frequency Temporal Commonsense Question: "How often should I stir the pot while making soup?"
+Answer: Stir occasionally, especially if they contain ingredients like rice or pasta that might stick to the bottom of the pot. Stirring helps distribute heat evenly and prevents sticking and scorching.
+'''
 
 
 
