@@ -13,19 +13,22 @@ Instruction fine-tuned LLMs are capable of in-context learning and generalize we
 
 <p align="center">
  <img width="789" alt="In Context Learning" src=https://github.com/iwinterknight/Knowledge-Distillation-for-Dialogues-QA/assets/37212007/a501eb92-a098-4516-8b21-6545e4ae2bf3>
- <center> Effect of number of model parameters on in-context learning. </center>
 </p>
 
 <p align="center">
-Image Source : [here](https://arxiv.org/abs/2206.07682)
+ Effect of number of model parameters on in-context learning.
 </p>
 
+Image Source : [here](https://arxiv.org/abs/2206.07682)
 
-Knowledge distillation is an important means to train smaller models(student models) to perform well on domains specific tasks, by aligning their learning with specialist models or open sourced large generalist LLMs(teacher models). This is done by jointly training the student model on the outputs of teacher model and the ground truth. The teacher model loss is essentially a Kullback Leibler divergence loss which guides the student model's output distribution to align with the teacher model's output distribution. We set a temperature value for the student-teacher loss so as to allow some discrepancy between their outputs.
+
+Knowledge distillation is an important means to train smaller models(student models) to perform well on domains specific tasks, by aligning their learning with specialist models or open sourced large generalist LLMs(teacher models). This is done by jointly training the student model on the outputs of teacher model and the ground truth. The teacher model loss is essentially a Kullback Leibler divergence loss which guides the student model's output distribution to align with the teacher model's output distribution. We set a temperature value for the student-teacher loss so as to allow some discrepancy between their outputs. We perform **"post-generation alignment"** by producing textual output from the teacher model and tokenizing the teacher model's output with the student model's tokenization pipeline before measuring the KL divergence between the two distributions.
 
 <p align="center">
  <img width="789" alt="Knowledge Distillation" src=https://github.com/iwinterknight/Knowledge-Distillation-for-Dialogues-QA/assets/37212007/815e64d4-bbac-4495-b614-f15e3503f7ab> 
- <center> Knowledge Distillation </center>
+</p>
+<p align="center">
+ Knowledge Distillation setup for post-generation alignment from the open-source LLM(teacher model).
 </p>
 
 
