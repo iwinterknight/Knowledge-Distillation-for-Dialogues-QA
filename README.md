@@ -29,7 +29,8 @@ Knowledge distillation is an important means to train smaller models(student mod
 LangChain is leveraged to prompt gpt3.5-turbo API to augment the Amazon Wizard of Tasks[^1] Cooking dataset with more detailed question answers about the task. These questions typically capture 2 aspects of task related commonsense reasoning, physical (eg. kitchen tool, ingredient substitutes etc.) and temporal (eg. duration, ordering of steps, frequency of steps).
 
 Here are a few examples of the type of questions generated through prompting :
-'''
+"""
+1. **Physical Commonsense Reasoning Questions** :
 Kitchen Tool Physical Commonsense Question: "I do not have a scraper or a chopper. How do I scrape the bowl?"
 Answer: "You could use any other sharp object like a kitchen knife or even a fork"
 
@@ -43,7 +44,7 @@ Kitchen Tool Physical Commonsense Question: "Do I have to put on oven mitts whil
 Answer: "If it is not too hot, you could also use a paper towel or wait for it too cool down"
 
 
-2. Temporal Commonsense Reasoning Questions :
+2. **Temporal Commonsense Reasoning Questions** :
 Description : A temporal reasoning question is one which involves an inherent understanding of time in order to come up with an answer. To this effect we have identified 3 key dimensions of temporal reasoning and illustrate each with an example
 
 Duration Temporal Commonsense Question: "Can I quickly go grab bread from the nearby store while the Turkey is still in the oven?"
@@ -54,7 +55,9 @@ Answer: Sure, you can boil eggs first and peel vegetables while they cook. Start
 
 Frequency Temporal Commonsense Question: "How often should I stir the pot while making soup?"
 Answer: Stir occasionally, especially if they contain ingredients like rice or pasta that might stick to the bottom of the pot. Stirring helps distribute heat evenly and prevents sticking and scorching.
-'''
+"""
+
+
 
 
 
