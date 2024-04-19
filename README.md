@@ -12,7 +12,7 @@ Instruction fine-tuned LLMs are capable of in-context learning and generalize we
 
 <p align="center">
  <img width="789" alt="In Context Learning" src=https://github.com/iwinterknight/Knowledge-Distillation-for-Dialogues-QA/assets/37212007/a501eb92-a098-4516-8b21-6545e4ae2bf3>
- <em>Effect of number of model parameters on in-context learning. </em>
+ <center><em>Effect of number of model parameters on in-context learning. </em></center>center>
 </p>
 Image Source : [here](https://arxiv.org/abs/2206.07682)
 
@@ -20,7 +20,7 @@ Knowledge distillation is an important means to train smaller models(student mod
 
 <p align="center">
  <img width="789" alt="Knowledge Distillation" src=https://github.com/iwinterknight/Knowledge-Distillation-for-Dialogues-QA/assets/37212007/815e64d4-bbac-4495-b614-f15e3503f7ab> 
- <em> Knowledge Distillation </em>
+ <center><em> Knowledge Distillation </em></center>center>
 </p>
 
 
