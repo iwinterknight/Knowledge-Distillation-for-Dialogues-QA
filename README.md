@@ -57,6 +57,57 @@ Frequency Temporal Commonsense Question: "How often should I stir the pot while 
 Answer: Stir occasionally, especially if they contain ingredients like rice or pasta that might stick to the bottom of the pot. Stirring helps distribute heat evenly and prevents sticking and scorching.
 ```
 
+LangChain's `ChatPromptTemplate`, `StructuredOutputParser` and `ResponseSchema` are used to organize the prompt input and outputs. For each QA turn in the task dialogue we prompt gpt to add crucial details by providing it the task instructions and the original QA from the dataset. We also generate follow-up question answer pairs to add clarifications and create data for holistic understanding of the task steps. We provide a sample input and output as one-shot prompt to the model.
+Following is a prompt snippet used in dataset generation : 
+```
+prompt_preface =
+"""
+ Example :
+   Sample Input:
+     ```Recipe :labneh fresh herbs and olive oil',
+     Instructions : Line a strainer with a double layer of cheesecloth and suspend over a bowl.
+     Spoon in yogurt. Refrigerate and let drain for at least 2 hours. Discard liquid.
+     The longer the yogurt drains, the thicker the cheese will be. For a thicker spread, drain covered yogurt overnight in the refrigerator.
+     Transfer to a bowl. Add oil, tarragon, basil, chives, thyme, zest, salt and pepper, and whisk until blended.
+     Let sit for 15 minutes to allow the flavors to meld.
+     Taste and adjust seasoning with salt and pepper.
+     Labneh will keep in an airtight container in the refrigerator for up to 5 days.```
+ 
+     Question : Can I let the ingredients sit for longer to make the flavors stronger?
+     Answer : Only 15 minutes is needed for the flavors to meld.
+"""
+
+
+output_template =
+"""
+   You are given a recipe delimited by triple backticks.
+   Following that is a question about the recipe and an answer is provided after the question.
+   Return the following information :
+
+   improved_question: If the question is very simple, you need to reframe the question and improve it by converting it to a question that requires more cooking related reasoning and details.
+   improved_answer: Generate a detailed answer to the improved question in less than 100 words.
+   follow_up: Array of 5 to 10 follow up questions and corresponding answers related to the the context and previous question and answer.
+
+   text: {text}
+
+   {format_instructions}
+"""
+
+improved_question_schema = ResponseSchema(name="improved_question",
+                                    description="If the question is very simple, you need to reframe the question and improve it by converting it to a question that requires more cooking related reasoning and details.")
+
+improved_answer_schema = ResponseSchema(name="improved_answer",
+                                  description="Generate a detailed answer to the improved question in less than 150 words.")
+
+follow_up_schema = ResponseSchema(name="follow_up",
+                            description="follow_up: Array of 5 to 10 follow up questions and corresponding answers related to the the context and previous question and answer. format : [{'question': string, 'answer': string}]",
+                            type="array(objects)")
+
+response_schemas = [improved_question_schema,
+              improved_answer_schema,
+              follow_up_schema]
+```
+
 
 
 
