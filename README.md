@@ -8,6 +8,7 @@ This repo contains :
 
 
 **Knowledge Distillation**
+
 Instruction fine-tuned LLMs are capable of in-context learning and generalize well to tasks they have not encountered during the fine-tuning stage. However this capacity to generalize is seen when the order of parameters is large.
 
 <p align="center">
@@ -26,6 +27,7 @@ Knowledge distillation is an important means to train smaller models(student mod
 
 
 **Dataset Generation**
+
 LangChain is leveraged to prompt gpt3.5-turbo API to augment the Amazon Wizard of Tasks[^1] Cooking dataset with more detailed question answers about the task. These questions typically capture 2 aspects of task related commonsense reasoning, physical (eg. kitchen tool, ingredient substitutes etc.) and temporal (eg. duration, ordering of steps, frequency of steps).
 
 Here are a few examples of the type of questions generated through prompting :
